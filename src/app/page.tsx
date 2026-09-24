@@ -29,7 +29,7 @@ export default function Home() {
         <div className="md:col-span-7">
           <Parallax speed={0.08}>
             <p className="text-xs tracking-[0.3em] text-ink-soft">
-              台灣水果產季誌 <span className="mx-2 text-ink/30">/</span>
+              台灣玉井日光 <span className="mx-2 text-ink/30">/</span>
               <span className="font-latin text-sm italic tracking-normal">Vol. 01 — 2026</span>
             </p>
             <h1 className="mt-8 font-serif text-5xl font-black leading-[1.15] tracking-tight sm:text-7xl">
