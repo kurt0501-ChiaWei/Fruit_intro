@@ -1,0 +1,166 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-paper: #f3eee4;
+  --color-ink: #1c2a22;
+  --color-ink-soft: #5b675f;
+  --font-sans: var(--font-geist-sans), "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", sans-serif;
+  --font-serif: var(--font-noto-serif), "Noto Serif TC", "PMingLiU", serif;
+  --font-latin: var(--font-instrument), Georgia, serif;
+  --font-mono: var(--font-geist-mono);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+}
+
+/* 紙張顆粒感 */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.35;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.4 0 0 0 0 0.3 0 0 0 0.35 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Modal 開啟動畫（抽獎、歡迎視窗共用） */
+.pop-dialog[open] {
+  animation: lucky-pop 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+.pop-dialog[open]::backdrop {
+  animation: lucky-fade 0.3s ease-out;
+}
+@keyframes lucky-pop {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.94);
+  }
+}
+@keyframes lucky-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* 歡迎語出現時從下方滑入 */
+.greeting-in {
+  animation: lucky-pop 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+/* 中獎彩帶 */
+.confetti {
+  position: absolute;
+  top: -12px;
+  width: 8px;
+  height: 14px;
+  border-radius: 2px;
+  pointer-events: none;
+  animation: confetti-fall linear forwards;
+}
+@keyframes confetti-fall {
+  to {
+    transform: translateY(640px) rotate(540deg);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pop-dialog[open],
+  .greeting-in,
+  .pop-dialog[open]::backdrop,
+  .confetti {
+    animation: none;
+  }
+  .confetti {
+    display: none;
+  }
+}
+
+@layer components {
+  /* 玻璃亮面：半透明 + 背景模糊 + 斜向光澤 + 上緣反光 */
+  .glass {
+    background-image: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.72) 0%,
+      rgba(255, 255, 255, 0.38) 50%,
+      rgba(255, 255, 255, 0.5) 100%
+    );
+    /* 只寫標準寫法，Safari 需要的 -webkit- 前綴由編譯器自動補上 */
+    backdrop-filter: blur(22px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.95),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.3),
+      0 24px 48px -16px rgba(40, 30, 20, 0.25);
+  }
+
+  /* 亮面水果球：由 Sphere 元件以 --l / --b / --d 傳入顏色 */
+  .sphere {
+    position: relative;
+    border-radius: 9999px;
+    background: radial-gradient(circle at 34% 28%, var(--l) 0%, var(--b) 48%, var(--d) 100%);
+    box-shadow:
+      inset -6px -10px 24px rgba(0, 0, 0, 0.1),
+      0 18px 30px -16px var(--d);
+  }
+  .sphere::after {
+    content: "";
+    position: absolute;
+    top: 9%;
+    left: 20%;
+    width: 38%;
+    height: 24%;
+    border-radius: 50%;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0));
+    transform: rotate(-20deg);
+  }
+
+  /* 照片的亮面：四周壓暗 + 左上反光 + 細白邊，讓照片看起來像玻璃球／玻璃片 */
+  .gloss {
+    position: relative;
+    isolation: isolate;
+    box-shadow: 0 24px 40px -20px rgba(40, 30, 20, 0.45);
+  }
+  .gloss::before,
+  .gloss::after {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .gloss::before {
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(circle at 35% 30%, transparent 50%, rgba(20, 10, 0, 0.28) 100%);
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.45),
+      inset 0 2px 0 rgba(255, 255, 255, 0.5);
+  }
+  .gloss::after {
+    top: 6%;
+    left: 16%;
+    width: 40%;
+    height: 22%;
+    border-radius: 50%;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0));
+    transform: rotate(-20deg);
+  }
+  /* 方形照片只要柔和的斜向光澤，不要圓形反光點 */
+  .gloss-flat::after {
+    inset: 0;
+    top: 0;
+    left: 0;
+    width: auto;
+    height: auto;
+    border-radius: inherit;
+    transform: none;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0) 38%);
+  }
+}
